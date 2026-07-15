@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Your cart — Aurora{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top:2rem;">
+    <h1 style="font-size:2.2rem;">Your cart</h1>
+</div>
+
+{% if cart|length %}
+<div class="container cart-page">
+    <div class="cart-list">
+        {% for item in cart %}
+        <div class="cart-row">
+            <a href="{{ item.product.get_absolute_url }}" class="cart-row__img">
+                <img src="{{ item.product.display_image }}" alt="{{ item.product.name }}">
+            </a>
+            <div class="cart-row__info">
+                <h4><a href="{{ item.product.get_absolute_url }}">{{ item.product.name }}</a></h4>
+                <div class="muted">{{ item.product.category.name }} · ${{ item.price|floatformat:2|intcomma }} each</div>
+                <form action="{% url 'cart:cart_add' item.product.id %}" method="post" style="margin-top:.6rem;">
+                    {% csrf_token %}
+                    <input type="hidden" name="override" value="true">
+                    <div class="qty">
+                        <button type="button" data-step="-1" aria-label="Decrease">−</button>
+                        <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="{{ item.product.stock }}" onchange="this.form.submit()">
+                        <button type="button" data-step="1" aria-label="Increase">+</button>
+                    </div>
+                </form>
+            </div>
+            <div class="cart-row__right">
+                <span class="cart-row__price">${{ item.total_price|floatformat:2|intcomma }}</span>
+                <form action="{% url 'cart:cart_remove' item.product.id %}" method="post">
+                    {% csrf_token %}
+                    <button type="submit" class="link-danger">Remove</button>
+                </form>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <aside class="summary">
+        <h3>Order summary</h3>
+        <div class="summary__row"><span>Subtotal</span><span>${{ cart.subtotal|floatformat:2|intcomma }}</span></div>
+        <div class="summary__row"><span>Shipping</span><span>{% if cart.shipping %}${{ cart.shipping|floatformat:2 }}{% else %}Free{% endif %}</span></div>
+        <div class="summary__row"><span>Tax (8%)</span><span>${{ cart.tax|floatformat:2|intcomma }}</span></div>
+        <div class="summary__row total"><span>Total</span><span>${{ cart.total|floatformat:2|intcomma }}</span></div>
+        {% if cart.shipping %}
+            <p class="muted" style="font-size:.82rem;margin-top:.6rem;">Add ${{ cart.shipping|floatformat:2 }}+ to unlock free shipping over $75.</p>
+        {% endif %}
+        <a href="{% url 'orders:checkout' %}" class="btn btn--primary btn--block btn--lg" style="margin-top:1rem;">Proceed to checkout</a>
+        <a href="{% url 'store:product_list' %}" class="btn btn--ghost btn--block" style="margin-top:.6rem;">Continue shopping</a>
+    </aside>
+</div>
+{% else %}
+<div class="container">
+    <div class="empty">
+        <div class="ic">🛒</div>
+        <h2>Your cart is empty</h2>
+        <p>Looks like you haven't added anything yet.</p>
+        <a href="{% url 'store:product_list' %}" class="btn btn--primary btn--lg">Start shopping</a>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

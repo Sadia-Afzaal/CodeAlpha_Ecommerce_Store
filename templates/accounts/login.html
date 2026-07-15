@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Sign in — Aurora{% endblock %}
+
+{% block content %}
+<div class="auth">
+    <div class="auth__aside">
+        <span class="hero__blob hero__blob--1"></span>
+        <a href="{% url 'store:home' %}" class="brand brand--light"><span class="brand__mark">◆</span> Aurora</a>
+        <h2>Welcome back.</h2>
+        <p>Sign in to track orders, save your favourites and check out faster.</p>
+        <ul>
+            <li>✓ Faster, saved checkout</li>
+            <li>✓ Full order history &amp; tracking</li>
+            <li>✓ Wishlist across devices</li>
+            <li>✓ Member-only early access</li>
+        </ul>
+    </div>
+    <div class="auth__panel">
+        <div class="auth__card">
+            <h1>Sign in</h1>
+            <p class="muted" style="margin-bottom:1.5rem;">New here? <a href="{% url 'accounts:register' %}" style="color:var(--accent);font-weight:700;">Create an account</a></p>
+
+            {% if form.non_field_errors %}
+                <div class="alert">{{ form.non_field_errors|join:" " }}</div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                <div class="field">
+                    <label for="{{ form.username.id_for_label }}">Username</label>
+                    {{ form.username }}
+                    {{ form.username.errors }}
+                </div>
+                <div class="field">
+                    <label for="{{ form.password.id_for_label }}">Password</label>
+                    {{ form.password }}
+                    {{ form.password.errors }}
+                </div>
+                <input type="hidden" name="next" value="{{ next }}">
+                <button type="submit" class="btn btn--primary btn--block btn--lg">Sign in</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

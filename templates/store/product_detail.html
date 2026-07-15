@@ -1,0 +1,136 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{{ product.name }} — Aurora{% endblock %}
+{% block meta_description %}{{ product.tagline|default:product.description|truncatewords:20 }}{% endblock %}
+
+{% block content %}
+<div class="container">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'store:home' %}">Home</a> ›
+        <a href="{% url 'store:product_list' %}">Shop</a> ›
+        <a href="{{ product.category.get_absolute_url }}">{{ product.category.name }}</a> ›
+        <span>{{ product.name }}</span>
+    </nav>
+</div>
+
+<div class="container pdp">
+    <div class="pdp__media">
+        <div class="pdp__img">
+            <img src="{{ product.display_image }}" alt="{{ product.name }}">
+        </div>
+    </div>
+
+    <div class="pdp__info">
+        {% if product.brand %}<span class="pdp__brand">{{ product.brand }}</span>{% endif %}
+        <h1>{{ product.name }}</h1>
+        <div class="card__rating">
+            <span class="stars">{% with r=product.average_rating|floatformat:0 %}{% for i in "12345" %}{% if forloop.counter <= r|add:0 %}★{% else %}☆{% endif %}{% endfor %}{% endwith %}</span>
+            <span>{{ product.average_rating|floatformat:1 }} · {{ product.rating_summary.count }} review{{ product.rating_summary.count|pluralize }}</span>
+        </div>
+
+        <div class="pdp__price">
+            <b>${{ product.price|floatformat:2|intcomma }}</b>
+            {% if product.on_sale %}
+                <del>${{ product.compare_at_price|floatformat:2|intcomma }}</del>
+                <span class="pdp__save">Save {{ product.discount_percent }}%</span>
+            {% endif %}
+        </div>
+
+        {% if product.tagline %}<p class="pdp__desc"><strong>{{ product.tagline }}</strong></p>{% endif %}
+        <p class="pdp__desc">{{ product.description|linebreaksbr }}</p>
+
+        {% if product.in_stock %}
+            {% if product.stock <= 5 %}
+                <span class="stock-pill low">● Only {{ product.stock }} left in stock</span>
+            {% else %}
+                <span class="stock-pill ok">● In stock &amp; ready to ship</span>
+            {% endif %}
+
+            <form action="{% url 'cart:cart_add' product.id %}" method="post" class="pdp__buy">
+                {% csrf_token %}
+                <div class="qty">
+                    <button type="button" data-step="-1" aria-label="Decrease quantity">−</button>
+                    <input type="number" name="quantity" value="1" min="1" max="{{ product.stock }}" aria-label="Quantity">
+                    <button type="button" data-step="1" aria-label="Increase quantity">+</button>
+                </div>
+                <button type="submit" class="btn btn--primary btn--lg" style="flex:1;">
+                    Add to cart · ${{ product.price|floatformat:2|intcomma }}
+                </button>
+            </form>
+        {% else %}
+            <span class="stock-pill out">● Currently sold out</span>
+            <div class="pdp__buy">
+                <button class="btn btn--ghost btn--lg btn--block" disabled>Out of stock</button>
+            </div>
+        {% endif %}
+
+        <div class="pdp__meta">
+            <div class="row"><span class="ic">🚚</span> Free carbon-neutral shipping on orders over $75</div>
+            <div class="row"><span class="ic">↩️</span> 30-day returns, no questions asked</div>
+            <div class="row"><span class="ic">🔒</span> Secure checkout · 2-year warranty included</div>
+        </div>
+    </div>
+</div>
+
+<section class="section reviews">
+    <div class="container">
+        <div class="section__head"><h2>Customer reviews</h2></div>
+
+        {% if reviews %}
+            {% for review in reviews %}
+            <div class="review">
+                <div class="review__head">
+                    <b>{{ review.user.first_name|default:review.user.username }}</b>
+                    <span class="stars">{% for i in "12345" %}{% if forloop.counter <= review.rating %}★{% else %}☆{% endif %}{% endfor %}</span>
+                </div>
+                <p class="muted">{{ review.comment|default:"No comment left." }}</p>
+                <small class="muted">{{ review.created_at|date:"M j, Y" }}</small>
+            </div>
+            {% endfor %}
+        {% else %}
+            <p class="muted">No reviews yet — be the first to share your thoughts!</p>
+        {% endif %}
+
+        {% if user.is_authenticated %}
+            {% if not user_has_reviewed %}
+            <form action="{% url 'store:add_review' product.slug %}" method="post" class="review-form">
+                {% csrf_token %}
+                <h3 style="margin-bottom:.8rem;">Write a review</h3>
+                <div class="field">
+                    <label>Your rating</label>
+                    <div class="star-input">
+                        {% for n in rating_range reversed %}
+                            <input type="radio" name="rating" id="star{{ n }}" value="{{ n }}" {% if n == 5 %}checked{% endif %}>
+                            <label for="star{{ n }}">★</label>
+                        {% endfor %}
+                    </div>
+                </div>
+                <div class="field">
+                    <label for="comment">Your review</label>
+                    <textarea name="comment" id="comment" rows="3" placeholder="What did you think?"></textarea>
+                </div>
+                <button type="submit" class="btn btn--dark">Post review</button>
+            </form>
+            {% else %}
+                <p class="muted">✓ You've already reviewed this product. Thanks!</p>
+            {% endif %}
+        {% else %}
+            <p class="muted"><a href="{% url 'accounts:login' %}?next={{ request.path }}" style="color:var(--accent);font-weight:700;">Sign in</a> to leave a review.</p>
+        {% endif %}
+    </div>
+</section>
+
+{% if related %}
+<section class="section">
+    <div class="container">
+        <div class="section__head"><h2>You may also like</h2></div>
+        <div class="product-grid">
+            {% for product in related %}
+                {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+{% endblock %}

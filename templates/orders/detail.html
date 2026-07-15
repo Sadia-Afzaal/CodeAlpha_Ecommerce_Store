@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+{% load humanize %}
+{% block title %}Order #{{ order.reference }} — Aurora{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:820px;padding-top:2rem;padding-bottom:3rem;">
+    <nav class="breadcrumb" aria-label="Breadcrumb">
+        <a href="{% url 'store:home' %}">Home</a> ›
+        <a href="{% url 'accounts:profile' %}">My account</a> ›
+        <span>Order #{{ order.reference }}</span>
+    </nav>
+
+    <h1 style="font-size:2rem;margin:.5rem 0 1.5rem;">Order #{{ order.reference }}</h1>
+
+    <div class="order-box" style="margin-top:0;">
+        <div class="order-box__head">
+            <div><div class="muted" style="font-size:.85rem;">Status</div><span class="badge-status">{{ order.get_status_display }}</span></div>
+            <div><div class="muted" style="font-size:.85rem;">Placed</div><b>{{ order.created_at|date:"M j, Y" }}</b></div>
+            <div><div class="muted" style="font-size:.85rem;">Items</div><b>{{ order.item_count }}</b></div>
+        </div>
+
+        {% for item in order.items.all %}
+        <div class="mini-item">
+            <div class="mini-item__img">
+                <img src="{% if item.product %}{{ item.product.display_image }}{% else %}https://picsum.photos/seed/order{{ item.id }}/120/120{% endif %}" alt="{{ item.product_name }}">
+                <span class="mini-item__qty">{{ item.quantity }}</span>
+            </div>
+            <span class="mini-item__name">{{ item.product_name }}</span>
+            <span>${{ item.total_price|floatformat:2|intcomma }}</span>
+        </div>
+        {% endfor %}
+
+        <div style="height:1rem;"></div>
+        <div class="summary__row"><span>Subtotal</span><span>${{ order.subtotal|floatformat:2|intcomma }}</span></div>
+        <div class="summary__row"><span>Shipping</span><span>{% if order.shipping %}${{ order.shipping|floatformat:2 }}{% else %}Free{% endif %}</span></div>
+        <div class="summary__row"><span>Tax</span><span>${{ order.tax|floatformat:2|intcomma }}</span></div>
+        <div class="summary__row total"><span>Total</span><span>${{ order.total|floatformat:2|intcomma }}</span></div>
+
+        <div style="margin-top:1.2rem;padding-top:1.2rem;border-top:1px solid var(--line);">
+            <div class="muted" style="font-size:.85rem;">Shipping to</div>
+            <p style="margin:.3rem 0 0;">{{ order.full_name }}<br>{{ order.address }}, {{ order.city }} {{ order.postal_code }}<br>{{ order.country }}</p>
+        </div>
+    </div>
+
+    <a href="{% url 'accounts:profile' %}" class="btn btn--ghost" style="margin-top:1.5rem;">← Back to my account</a>
+</div>
+{% endblock %}

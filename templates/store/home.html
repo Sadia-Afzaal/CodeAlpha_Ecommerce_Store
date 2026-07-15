@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% load static humanize %}
+
+{% block content %}
+<section class="hero">
+    <span class="hero__blob hero__blob--1"></span>
+    <span class="hero__blob hero__blob--2"></span>
+    <div class="container hero__inner">
+        <div class="hero__copy">
+            <span class="hero__eyebrow">✦ New Season · 2026 Collection</span>
+            <h1>Everyday things,<br><em>beautifully</em> made.</h1>
+            <p>Aurora curates design-led tech, home and lifestyle essentials — thoughtfully sourced, rigorously tested, and shipped carbon-neutral.</p>
+            <div class="hero__cta">
+                <a href="{% url 'store:product_list' %}" class="btn btn--primary btn--lg">Shop the collection</a>
+                <a href="{% url 'store:about' %}" class="btn btn--ghost btn--lg">Our story</a>
+            </div>
+            <div class="hero__stats">
+                <div><b>12k+</b><span>Happy customers</span></div>
+                <div><b>4.9/5</b><span>Average rating</span></div>
+                <div><b>48h</b><span>Fast delivery</span></div>
+            </div>
+        </div>
+        <div class="hero__art">
+            <img src="https://images.unsplash.com/photo-1526170375885-4d8ecf77b99f?auto=format&fit=crop&w=900&q=80" alt="Featured product">
+            <div class="hero__badge">
+                <div><span class="muted">Best seller</span><br><b>Studio Wireless Headphones</b></div>
+                <a href="{% url 'store:product_list' %}" class="btn btn--dark">Shop →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <div>
+                <h2>Shop by category</h2>
+                <p>Find exactly what you're looking for.</p>
+            </div>
+            <a href="{% url 'store:product_list' %}" class="section__link">View all →</a>
+        </div>
+        <div class="cat-strip">
+            {% for c in categories %}
+            <a href="{{ c.get_absolute_url }}" class="cat-card">
+                <span class="cat-card__icon">{{ c.icon|default:"🛍️" }}</span>
+                <b>{{ c.name }}</b>
+                <span>{{ c.products.count }} product{{ c.products.count|pluralize }}</span>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <div>
+                <h2>Featured picks</h2>
+                <p>Hand-selected favourites from our team.</p>
+            </div>
+            <a href="{% url 'store:product_list' %}" class="section__link">View all →</a>
+        </div>
+        <div class="product-grid">
+            {% for product in featured %}
+                {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="trust">
+    <div class="container trust__grid">
+        <div class="trust__item"><span class="ic">🚚</span><div><b>Free shipping</b><span>On all orders over $75</span></div></div>
+        <div class="trust__item"><span class="ic">↩️</span><div><b>30-day returns</b><span>No-questions-asked policy</span></div></div>
+        <div class="trust__item"><span class="ic">🔒</span><div><b>Secure checkout</b><span>256-bit encrypted payments</span></div></div>
+        <div class="trust__item"><span class="ic">💬</span><div><b>24/7 support</b><span>We're here whenever you need</span></div></div>
+    </div>
+</section>
+
+{% if on_sale %}
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <div>
+                <h2>On sale now</h2>
+                <p>Limited-time deals you don't want to miss.</p>
+            </div>
+            <a href="{% url 'store:product_list' %}?sort=price_asc" class="section__link">All deals →</a>
+        </div>
+        <div class="product-grid">
+            {% for product in on_sale %}
+                {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endif %}
+
+<section class="section">
+    <div class="container">
+        <div class="section__head">
+            <div>
+                <h2>New arrivals</h2>
+                <p>Fresh drops, just landed.</p>
+            </div>
+            <a href="{% url 'store:product_list' %}?sort=newest" class="section__link">View all →</a>
+        </div>
+        <div class="product-grid">
+            {% for product in new_arrivals %}
+                {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

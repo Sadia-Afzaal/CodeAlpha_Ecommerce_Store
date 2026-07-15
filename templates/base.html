@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="{% block meta_description %}Aurora — a modern store for design-led essentials. Curated tech, home and lifestyle goods.{% endblock %}">
+    <title>{% block title %}Aurora — Modern Essentials{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🛍️</text></svg>">
+    {% block extra_head %}{% endblock %}
+</head>
+<body>
+<header class="site-header" id="site-header">
+    <div class="topbar">
+        <div class="container topbar__inner">
+            <span>✦ Free shipping on orders over $75 · 30-day easy returns</span>
+        </div>
+    </div>
+    <div class="container nav">
+        <a href="{% url 'store:home' %}" class="brand">
+            <span class="brand__mark">◆</span> Aurora
+        </a>
+
+        <form class="nav__search" action="{% url 'store:product_list' %}" method="get" role="search">
+            <input type="search" name="q" placeholder="Search products, brands…" value="{{ request.GET.q|default:'' }}" aria-label="Search">
+            <button type="submit" aria-label="Search">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+            </button>
+        </form>
+
+        <nav class="nav__links" aria-label="Primary">
+            <a href="{% url 'store:product_list' %}">Shop</a>
+            <div class="nav__dropdown">
+                <button class="nav__dropdown-btn" type="button">Categories ▾</button>
+                <div class="nav__dropdown-menu">
+                    {% for c in nav_categories %}
+                        <a href="{{ c.get_absolute_url }}">{{ c.icon }} {{ c.name }}</a>
+                    {% endfor %}
+                </div>
+            </div>
+            <a href="{% url 'store:about' %}">About</a>
+        </nav>
+
+        <div class="nav__actions">
+            {% if user.is_authenticated %}
+                <div class="nav__dropdown">
+                    <button class="icon-btn nav__dropdown-btn" type="button" aria-label="Account">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>
+                    </button>
+                    <div class="nav__dropdown-menu nav__dropdown-menu--right">
+                        <span class="nav__dropdown-hi">Hi, {{ user.first_name|default:user.username }}</span>
+                        <a href="{% url 'accounts:profile' %}">My account &amp; orders</a>
+                        {% if user.is_staff %}<a href="/admin/">Admin dashboard</a>{% endif %}
+                        <form action="{% url 'accounts:logout' %}" method="post">{% csrf_token %}<button type="submit">Log out</button></form>
+                    </div>
+                </div>
+            {% else %}
+                <a href="{% url 'accounts:login' %}" class="nav__login">Sign in</a>
+            {% endif %}
+            <a href="{% url 'cart:cart_detail' %}" class="icon-btn cart-link" aria-label="Cart">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6h15l-1.5 9h-12z"/><circle cx="9" cy="20" r="1.5"/><circle cx="18" cy="20" r="1.5"/><path d="M6 6 5 3H2"/></svg>
+                <span class="cart-badge" data-cart-count {% if not cart|length %}hidden{% endif %}>{{ cart|length }}</span>
+            </a>
+        </div>
+    </div>
+</header>
+
+{% if messages %}
+<div class="container toast-wrap">
+    {% for message in messages %}
+        <div class="toast toast--{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
+{% endif %}
+
+<main>
+    {% block content %}{% endblock %}
+</main>
+
+<footer class="site-footer">
+    <div class="container footer__grid">
+        <div class="footer__brand">
+            <a href="{% url 'store:home' %}" class="brand brand--light"><span class="brand__mark">◆</span> Aurora</a>
+            <p>Design-led essentials for the way you live and work. Curated, tested, and shipped with care.</p>
+        </div>
+        <div>
+            <h4>Shop</h4>
+            {% for c in nav_categories %}<a href="{{ c.get_absolute_url }}">{{ c.name }}</a>{% endfor %}
+        </div>
+        <div>
+            <h4>Company</h4>
+            <a href="{% url 'store:about' %}">About us</a>
+            <a href="{% url 'store:product_list' %}">All products</a>
+            <a href="{% url 'accounts:profile' %}">My account</a>
+        </div>
+        <div>
+            <h4>Stay in the loop</h4>
+            <p>Get 10% off your first order.</p>
+            <form class="footer__news" onsubmit="event.preventDefault(); this.reset(); this.querySelector('.footer__news-msg').hidden=false;">
+                <input type="email" placeholder="you@example.com" aria-label="Email" required>
+                <button type="submit">Join</button>
+            </form>
+            <small class="footer__news-msg" hidden>Thanks! Check your inbox. 🎉</small>
+        </div>
+    </div>
+    <div class="container footer__bottom">
+        <span>© {% now "Y" %} Aurora Store. Built with Django.</span>
+        <span>Secure checkout · Visa · Mastercard · Amex</span>
+    </div>
+</footer>
+
+<script src="{% static 'js/main.js' %}"></script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

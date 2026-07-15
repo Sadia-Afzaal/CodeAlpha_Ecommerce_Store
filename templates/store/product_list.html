@@ -1,0 +1,72 @@
+{% extends "base.html" %}
+{% load humanize %}
+
+{% block title %}{% if category %}{{ category.name }}{% elif query %}Search: {{ query }}{% else %}Shop all{% endif %} — Aurora{% endblock %}
+
+{% block content %}
+<div class="container shop">
+    <aside class="filters">
+        <h3>Categories</h3>
+        <div class="filters__list">
+            <a href="{% url 'store:product_list' %}" class="{% if not category %}is-active{% endif %}">All products</a>
+            {% for c in categories %}
+                <a href="{{ c.get_absolute_url }}" class="{% if category.id == c.id %}is-active{% endif %}">
+                    <span>{{ c.icon }} {{ c.name }}</span><span>{{ c.products.count }}</span>
+                </a>
+            {% endfor %}
+        </div>
+        <h3>Need help?</h3>
+        <p class="muted" style="font-size:.88rem;">Not sure what to pick? Browse our <a href="{% url 'store:about' %}" style="color:var(--accent);font-weight:700;">curation philosophy</a> or reach support 24/7.</p>
+    </aside>
+
+    <div>
+        <div class="shop__head">
+            <div>
+                <h1>{% if category %}{{ category.name }}{% elif query %}Results for “{{ query }}”{% else %}All products{% endif %}</h1>
+                <span class="muted">{{ total_count }} product{{ total_count|pluralize }} found</span>
+            </div>
+            <select class="select" data-sort aria-label="Sort products">
+                <option value="" {% if not sort %}selected{% endif %}>Sort: Featured</option>
+                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                <option value="price_asc" {% if sort == "price_asc" %}selected{% endif %}>Price: Low to High</option>
+                <option value="price_desc" {% if sort == "price_desc" %}selected{% endif %}>Price: High to Low</option>
+                <option value="name" {% if sort == "name" %}selected{% endif %}>Name: A–Z</option>
+            </select>
+        </div>
+
+        {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                {% include "partials/product_card.html" %}
+            {% endfor %}
+        </div>
+
+        {% if page_obj.paginator.num_pages > 1 %}
+        <nav class="pagination" aria-label="Pagination">
+            {% if page_obj.has_previous %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.previous_page_number }}">‹</a>
+            {% endif %}
+            {% for num in page_obj.paginator.page_range %}
+                {% if num == page_obj.number %}
+                    <span class="current">{{ num }}</span>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ num }}">{{ num }}</a>
+                {% endif %}
+            {% endfor %}
+            {% if page_obj.has_next %}
+                <a href="?{% if querystring %}{{ querystring }}&{% endif %}page={{ page_obj.next_page_number }}">›</a>
+            {% endif %}
+        </nav>
+        {% endif %}
+
+        {% else %}
+        <div class="empty">
+            <div class="ic">🔍</div>
+            <h2>No products found</h2>
+            <p>Try a different search or browse all products.</p>
+            <a href="{% url 'store:product_list' %}" class="btn btn--primary">Browse all products</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

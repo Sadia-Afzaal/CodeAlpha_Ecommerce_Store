@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}About — Aurora{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="about-hero">
+        <span class="hero__eyebrow">✦ Our story</span>
+        <h1>We believe good design should be for everyone.</h1>
+        <p>Aurora started with a simple frustration: great everyday products were either overpriced or poorly made. So we built a store that curates only the essentials worth owning — tested by real people, priced fairly, and made to last.</p>
+    </div>
+
+    <div class="values">
+        <div class="value-card">
+            <span class="ic">🎯</span>
+            <h3>Curated, not cluttered</h3>
+            <p>Every product earns its place. We test dozens of options and stock only the ones we'd buy ourselves.</p>
+        </div>
+        <div class="value-card">
+            <span class="ic">🌱</span>
+            <h3>Sustainable by default</h3>
+            <p>Carbon-neutral shipping, recyclable packaging, and partners who share our values.</p>
+        </div>
+        <div class="value-card">
+            <span class="ic">💛</span>
+            <h3>People first</h3>
+            <p>Fair pricing, honest descriptions, and support that actually helps — 24 hours a day.</p>
+        </div>
+        <div class="value-card">
+            <span class="ic">🛡️</span>
+            <h3>Built to last</h3>
+            <p>Two-year warranty on everything and a no-questions-asked 30-day return policy.</p>
+        </div>
+    </div>
+
+    <div class="about-hero" style="padding-top:1rem;">
+        <a href="{% url 'store:product_list' %}" class="btn btn--primary btn--lg">Explore the collection</a>
+    </div>
+</div>
+{% endblock %}

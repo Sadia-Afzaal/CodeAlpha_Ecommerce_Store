@@ -1,0 +1,42 @@
+{% extends "base.html" %}
+{% block title %}Create account — Aurora{% endblock %}
+
+{% block content %}
+<div class="auth">
+    <div class="auth__aside">
+        <span class="hero__blob hero__blob--1"></span>
+        <a href="{% url 'store:home' %}" class="brand brand--light"><span class="brand__mark">◆</span> Aurora</a>
+        <h2>Join Aurora.</h2>
+        <p>Create your free account and get 10% off your first order, plus perks made for members.</p>
+        <ul>
+            <li>✓ 10% off your first order</li>
+            <li>✓ Save addresses for 1-tap checkout</li>
+            <li>✓ Track every order in one place</li>
+            <li>✓ Early access to new drops &amp; sales</li>
+        </ul>
+    </div>
+    <div class="auth__panel">
+        <div class="auth__card">
+            <h1>Create your account</h1>
+            <p class="muted" style="margin-bottom:1.5rem;">Already a member? <a href="{% url 'accounts:login' %}" style="color:var(--accent);font-weight:700;">Sign in</a></p>
+
+            {% if form.non_field_errors %}
+                <div class="alert">{{ form.non_field_errors|join:" " }}</div>
+            {% endif %}
+
+            <form method="post" novalidate>
+                {% csrf_token %}
+                {% for field in form %}
+                    <div class="field">
+                        <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                        {{ field }}
+                        {% if field.help_text %}<small class="helptext">{{ field.help_text|safe }}</small>{% endif %}
+                        {{ field.errors }}
+                    </div>
+                {% endfor %}
+                <button type="submit" class="btn btn--primary btn--block btn--lg">Create account</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
